@@ -1,47 +1,370 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Modular</title>
+    <title>Calculadora Avançada</title>
     <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="calculator-container">
         <div class="calculator">
-            <div class="display">
-                <input type="text" id="result" readonly placeholder="0">
-            </div>
-            
+            <div class="display" id="display">0</div>
             <div class="buttons">
-                <button class="btn clear">C</button>
-                <button class="btn clear">⌫</button>
-                <button class="btn operator">÷</button>
-                <button class="btn operator">×</button>
-                
-                <button class="btn number">7</button>
-                <button class="btn number">8</button>
-                <button class="btn number">9</button>
-                <button class="btn operator">-</button>
-                
-                <button class="btn number">4</button>
-                <button class="btn number">5</button>
-                <button class="btn number">6</button>
-                <button class="btn operator">+</button>
-                
-                <button class="btn number">1</button>
-                <button class="btn number">2</button>
-                <button class="btn number">3</button>
-                <button class="btn equals">=</button>
-                
-                <button class="btn number zero">0</button>
-                <button class="btn number">.</button>
+                <button class="clear" onclick="clearDisplay()">C</button>
+                <button class="operator" onclick="appendToDisplay('/')">/</button>
+                <button class="operator" onclick="appendToDisplay('*')">×</button>
+                <button class="operator" onclick="appendToDisplay('-')">-</button>
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button class="operator" onclick="appendToDisplay('+')">+</button>
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button class="operator" onclick="calculateModulo()">%</button>
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button class="operator" onclick="calculateIntegerDivision()">//</button>
+                <button onclick="appendToDisplay('0')">0</button>
+                <button onclick="appendToDisplay('.')">.</button>
+                <button class="equals" onclick="calculate()">=</button>
+                <button class="operator" onclick="calculatePrecision()">Prec</button>
+            </div>
+            <div class="advanced-buttons">
+                <button onclick="checkPrime()">Verificar Primo</button>
+                <button onclick="findDivisors()">Encontrar Divisores</button>
+                <button onclick="calculateGCD()">MDC</button>
+                <button onclick="calculateLCM()">MMC</button>
+                <button onclick="simplifyFraction()">Simplificar Fração</button>
+                <button onclick="decimalToFraction()">Decimal para Fração</button>
+                <button onclick="calculatePower()">Potência</button>
+                <button onclick="calculateRoot()">Raiz</button>
+                <button onclick="calculateFactorial()">Fatorial</button>
+                <button onclick="calculateMatrixMultiply()">Multiplicação Matricial</button>
+            </div>
+        </div>
+        <div class="options-panel">
+            <h3>Modos de Operação</h3>
+            <div class="mode-buttons">
+                <button onclick="setMode('basic')" class="active">Básico</button>
+                <button onclick="setMode('scientific')">Científico</button>
+                <button onclick="setMode('matrix')">Matricial</button>
+                <button onclick="setMode('statistics')">Estatístico</button>
+            </div>
+            <h3>Precisão</h3>
+            <div class="mode-buttons">
+                <button onclick="setPrecision(2)">2 casas</button>
+                <button onclick="setPrecision(4)">4 casas</button>
+                <button onclick="setPrecision(8)">8 casas</button>
+                <button onclick="setPrecision(16)">16 casas</button>
             </div>
         </div>
     </div>
 
+    <script>
+        let currentMode = 'basic';
+        let currentPrecision = 2;
+        let display = document.getElementById('display');
 
-   <script src="script/main.js"></script>
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateDisplay();
+        }
+
+        function setPrecision(precision) {
+            currentPrecision = precision;
+            document.querySelectorAll('.mode-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateDisplay();
+        }
+
+        function appendToDisplay(value) {
+            if (display.textContent === '0' && value !== '.') {
+                display.textContent = value;
+            } else {
+                display.textContent += value;
+            }
+        }
+
+        function clearDisplay() {
+            display.textContent = '0';
+        }
+
+        function updateDisplay() {
+            // Atualiza a interface baseado no modo atual
+            const advancedButtons = document.querySelectorAll('.advanced-buttons button');
+            advancedButtons.forEach(btn => {
+                btn.style.display = currentMode === 'basic' ? 'none' : 'block';
+            });
+        }
+
+        async function calculate() {
+            try {
+                const response = await fetch('/api/divide', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        a: eval(display.textContent),
+                        b: 1
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result.toFixed(currentPrecision);
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateModulo() {
+            try {
+                const [a, b] = display.textContent.split('%');
+                const response = await fetch('/api/modulo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ a: Number(a), b: Number(b) })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateIntegerDivision() {
+            try {
+                const [a, b] = display.textContent.split('//');
+                const response = await fetch('/api/integer-division', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ a: Number(a), b: Number(b) })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculatePrecision() {
+            try {
+                const [a, b] = display.textContent.split('/');
+                const response = await fetch('/api/divide-precision', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        a: Number(a),
+                        b: Number(b),
+                        precision: currentPrecision
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function checkPrime() {
+            try {
+                const response = await fetch('/api/is-prime', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ num: Number(display.textContent) })
+                });
+                const data = await response.json();
+                display.textContent = data.result ? 'É primo' : 'Não é primo';
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function findDivisors() {
+            try {
+                const response = await fetch('/api/find-divisors', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ num: Number(display.textContent) })
+                });
+                const data = await response.json();
+                display.textContent = data.result.join(', ');
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateGCD() {
+            try {
+                const [a, b] = display.textContent.split(',');
+                const response = await fetch('/api/gcd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ a: Number(a), b: Number(b) })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateLCM() {
+            try {
+                const [a, b] = display.textContent.split(',');
+                const response = await fetch('/api/lcm', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ a: Number(a), b: Number(b) })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function simplifyFraction() {
+            try {
+                const [numerator, denominator] = display.textContent.split('/');
+                const response = await fetch('/api/simplify-fraction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        numerator: Number(numerator),
+                        denominator: Number(denominator)
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function decimalToFraction() {
+            try {
+                const response = await fetch('/api/decimal-to-fraction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        decimal: Number(display.textContent),
+                        precision: currentPrecision
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculatePower() {
+            try {
+                const [base, exponent] = display.textContent.split('^');
+                const response = await fetch('/api/power', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        base: Number(base),
+                        exponent: Number(exponent)
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateRoot() {
+            try {
+                const [number, root] = display.textContent.split('√');
+                const response = await fetch('/api/root', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        number: Number(number),
+                        root: Number(root) || 2
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateFactorial() {
+            try {
+                const response = await fetch('/api/factorial', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        number: Number(display.textContent)
+                    })
+                });
+                const data = await response.json();
+                display.textContent = data.result;
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        async function calculateMatrixMultiply() {
+            try {
+                const matrices = display.textContent.split('|');
+                const response = await fetch('/api/matrix-multiply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        matrix1: JSON.parse(matrices[0]),
+                        matrix2: JSON.parse(matrices[1])
+                    })
+                });
+                const data = await response.json();
+                display.textContent = JSON.stringify(data.result);
+            } catch (error) {
+                display.textContent = 'Erro';
+            }
+        }
+
+        // Inicialização
+        updateDisplay();
+    </script>
 </body>
 </html>
