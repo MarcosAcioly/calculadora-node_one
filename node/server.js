@@ -219,6 +219,48 @@ app.post('/api/adcao', (req, res) => { // <-- AQUI! Adicione a barra (/)
         res.status(400).json({ error: error.message }); 
     }
 });
+
+app.post('/api/multiplicacao', (req, res) => {
+    try{
+        console.log('Requisição de adição:', req.body);
+        const { a, b } = req.body;
+
+        // Validação de entrada
+        if (a === undefined || b === undefined) {
+            throw new Error('Parâmetros "a" e "b" são obrigatórios.');
+        }
+
+        const numA = Number(a);
+        const numB = Number(b);
+
+        const result = MathOperations.multiplicacao(numA, numB);
+        res.json({result})
+    }catch(error){
+        console.error('Erro na adição:', error);
+        res.status(400).json({ error: error.message }); 
+    }
+})
+
+app.post('/api/subtracao', (req, res) => {
+    try{
+        console.log('Requisição de adição:', req.body);
+        const { a, b } = req.body;
+
+        // Validação de entrada
+        if (a === undefined || b === undefined) {
+            throw new Error('Parâmetros "a" e "b" são obrigatórios.');
+        }
+
+        const numA = Number(a);
+        const numB = Number(b);
+
+        const result = MathOperations.subtracao(numA, numB);
+        res.json({result})
+    } catch(error){
+        console.error('Erro na adição:', error);
+        res.status(400).json({ error: error.message }); 
+    }
+})
 // Rota para verificar se o servidor está funcionando
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -112,6 +112,20 @@ class MathOperations {
         } 
         return a + b;
     }
+
+    static multiplicacao(a,b){
+        if(a < 0 && b < 0){
+            alert('Apenas valores positivos')
+        }
+        return a * b;
+    }
+
+    static subtracao(a,b){
+        if(a < 0 && b < 0){
+            alert('Apenas valores positivos')
+        }
+        return a - b;
+    }
 }
 
 module.exports = MathOperations; 
