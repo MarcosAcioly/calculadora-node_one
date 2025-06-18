@@ -197,6 +197,28 @@ app.post('/api/decimal-to-fraction', (req, res) => {
     }
 });
 
+// Rota para adcao
+app.post('/api/adcao', (req, res) => { // <-- AQUI! Adicione a barra (/)
+    try {
+        console.log('Requisição de adição:', req.body);
+        const { a, b } = req.body;
+
+        // Validação de entrada
+        if (a === undefined || b === undefined) {
+            throw new Error('Parâmetros "a" e "b" são obrigatórios.');
+        }
+
+        const numA = Number(a);
+        const numB = Number(b);
+
+        // Chamar a função adcao da classe MathOperations
+        const result = MathOperations.adcao(numA, numB);
+        res.json({ result });
+    } catch (error) {
+        console.error('Erro na adição:', error);
+        res.status(400).json({ error: error.message }); 
+    }
+});
 // Rota para verificar se o servidor está funcionando
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
